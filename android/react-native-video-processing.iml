@@ -119,7 +119,6 @@
     <orderEntry type="library" name="Gradle: com.facebook.fresco:imagepipeline-base:1.9.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.facebook.soloader:soloader:0.3.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.facebook.fbui.textlayoutbuilder:textlayoutbuilder:1.0.0@aar" level="project" />
-    <orderEntry type="library" name="Gradle: com.yqritc:android-scalablevideoview:1.0.4@aar" level="project" />
     <orderEntry type="library" name="Gradle: android.arch.lifecycle:runtime:1.0.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.squareup.okio:okio:1.14.0@jar" level="project" />
     <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1@jar" level="project" />
