@@ -357,6 +357,9 @@ public class Trimmer {
   }
 
   public static String getRealPathFromURI(Uri contentUri, ReactApplicationContext ctx) {
+    if(contentUri.toString().startsWith("file://")){
+      return contentUri.toString();
+    }
     String[] proj = { MediaStore.Video.Media.DATA };
     CursorLoader loader = new CursorLoader(ctx, contentUri, proj, null, null, null);
     Cursor cursor = loader.loadInBackground();
