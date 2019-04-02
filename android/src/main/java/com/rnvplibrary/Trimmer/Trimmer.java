@@ -61,6 +61,7 @@ public class Trimmer {
   private static boolean ffmpegLoaded = false;
   private static final int DEFAULT_BUFFER_SIZE = 4096;
   private static final int END_OF_FILE = -1;
+  private static final int END_OF_FILE2 = -1;
 
   private static class FfmpegCmdAsyncTaskParams {
     ArrayList<String> cmd;
@@ -107,9 +108,9 @@ public class Trimmer {
         StringBuilder sInput = new StringBuilder();
 
         while((line=input.readLine()) != null) {
-            Log.d(LOG_TAG, "processing ffmpeg");
-            System.out.println(sInput);
-            sInput.append(line);
+          Log.d(LOG_TAG, "processing ffmpeg");
+          System.out.println(sInput);
+          sInput.append(line);
         }
         input.close();
 
@@ -122,8 +123,8 @@ public class Trimmer {
 
           Log.d(LOG_TAG, "ffmpeg error code: " + errorCode);
           while((line=error.readLine()) != null) {
-              System.out.println(sError);
-              sError.append(line);
+            System.out.println(sError);
+            sError.append(line);
           }
           error.close();
 
@@ -177,8 +178,10 @@ public class Trimmer {
       // TODO: MAKE SURE THAT WHEN WE UPDATE FFMPEG AND USER UPDATES APP IT WILL LOAD NEW FFMPEG (IT MUST OVERWRITE OLD FFMPEG)
       try {
         File ffmpegFile = new File(filesDir, FFMPEG_FILE_NAME);
+        File ffmpegFile2 = new File(filesDir, SI_FILE_NAME);
         if ( !(ffmpegFile.exists() && getSha1FromFile(ffmpegFile).equalsIgnoreCase(FFMPEG_SHA1)) ) {
           final FileOutputStream ffmpegStreamToDataDir = new FileOutputStream(ffmpegFile);
+          final FileOutputStream ffmpegStreamToDataDir2 = new FileOutputStream(ffmpegFile2);
           byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
 
           int n;
@@ -187,27 +190,33 @@ public class Trimmer {
           String arch = System.getProperty("os.arch");
           Log.d(LOG_TAG, "arch" + arch.toString());
           if(arch.contains("arm")){
-            Log.d(LOG_TAG, "arm" + arch.toString());
+            Log.d(LOG_TAG, "arm version" + arch.toString());
             ffmpegInAssets = ctx.getAssets().open("armeabi-v7a" + File.separator + FFMPEG_FILE_NAME);
-          } else {
-            Log.d(LOG_TAG, "x86" + arch.toString());
+            while(END_OF_FILE != (n = ffmpegInAssets.read(buffer))) {
+              ffmpegStreamToDataDir.write(buffer, 0, n);
+            }
+            ffmpegStreamToDataDir.flush();
+            ffmpegStreamToDataDir.close();
+            ffmpegInAssets.close();
+          } else if (arch.contains("86")) {
+            Log.d(LOG_TAG, "x86 version" + arch.toString());
             ffmpegInAssets = ctx.getAssets().open("x86" + File.separator + FFMPEG_FILE_NAME);
             ffmpegInAssets2 = ctx.getAssets().open("x86" + File.separator + SI_FILE_NAME);
+
+            while(END_OF_FILE != (n = ffmpegInAssets.read(buffer))) {
+              ffmpegStreamToDataDir.write(buffer, 0, n);
+            }
+            ffmpegStreamToDataDir.flush();
+            ffmpegStreamToDataDir.close();
+
+            while(END_OF_FILE != (n = ffmpegInAssets2.read(buffer))) {
+              ffmpegStreamToDataDir2.write(buffer, 0, n);
+            }
+            ffmpegStreamToDataDir2.flush();
+            ffmpegStreamToDataDir2.close();
+            ffmpegInAssets.close();
+            ffmpegInAssets2.close();
           }
-
-
-          while(END_OF_FILE != (n = ffmpegInAssets.read(buffer))) {
-            ffmpegStreamToDataDir.write(buffer, 0, n);
-          }
-
-          while(END_OF_FILE != (n = ffmpegInAssets2.read(buffer))) {
-            ffmpegStreamToDataDir.write(buffer, 0, n);
-          }
-
-          ffmpegStreamToDataDir.flush();
-          ffmpegStreamToDataDir.close();
-
-          ffmpegInAssets.close();
         }
       } catch (IOException e) {
         Log.d(LOG_TAG, "Failed to copy ffmpeg" + e.toString());
@@ -478,10 +487,10 @@ public class Trimmer {
 
     if ( width != 0 && height != 0 && videoWidth != 0 && videoHeight != 0 ) {
       ReadableMap sizes = formatWidthAndHeightForFfmpeg(
-        width,
-        height,
-        videoWidth,
-        videoHeight
+              width,
+              height,
+              videoWidth,
+              videoHeight
       );
       width = sizes.getInt("width");
       height = sizes.getInt("height");
@@ -696,7 +705,7 @@ public class Trimmer {
     cmd.add(tempFile.getPath());
     Log.d("Tessssssst", String.valueOf(cmd));
 
-   // executeFfmpegCommand(cmd, tempFile.getPath(), ctx, promise, "Crop error", null);
+    // executeFfmpegCommand(cmd, tempFile.getPath(), ctx, promise, "Crop error", null);
     String pathToProcessingFile = tempFile.getPath();
     String errorMessageTitle = "Crop error";
     OnCompressVideoListener cb = null;
