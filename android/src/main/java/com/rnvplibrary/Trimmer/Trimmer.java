@@ -25,13 +25,9 @@ import com.rnvplibrary.Events.Events;
 import com.rnvplibrary.interfaces.OnCompressVideoListener;
 import com.rnvplibrary.interfaces.OnTrimVideoListener;
 import com.rnvplibrary.utils.VideoEdit;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-
-import wseemann.media.FFmpegMediaMetadataRetriever;
-
 import java.util.UUID;
 import java.io.FileOutputStream;
 import java.util.Arrays;
@@ -61,7 +57,6 @@ public class Trimmer {
   private static boolean ffmpegLoaded = false;
   private static final int DEFAULT_BUFFER_SIZE = 4096;
   private static final int END_OF_FILE = -1;
-  private static final int END_OF_FILE2 = -1;
 
   private static class FfmpegCmdAsyncTaskParams {
     ArrayList<String> cmd;
@@ -253,7 +248,7 @@ public class Trimmer {
 
 
   public static void getPreviewImages(String path, Promise promise, ReactApplicationContext ctx) {
-    FFmpegMediaMetadataRetriever retriever = new FFmpegMediaMetadataRetriever();
+    MediaMetadataRetriever retriever = new MediaMetadataRetriever();
     try {
       if (VideoEdit.shouldUseURI(path)) {
         retriever.setDataSource(ctx, Uri.parse(path));
@@ -262,10 +257,10 @@ public class Trimmer {
       }
 
       WritableArray images = Arguments.createArray();
-      int duration = Integer.parseInt(retriever.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION));
-      int width = Integer.parseInt(retriever.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-      int height = Integer.parseInt(retriever.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-      int orientation = Integer.parseInt(retriever.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+      int duration = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+      int width = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+      int height = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+      int orientation = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
 
       float aspectRatio = (float)width / (float)height;
 
@@ -316,23 +311,26 @@ public class Trimmer {
   }
 
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-  public static void getVideoInfo(String path, Promise promise, ReactApplicationContext ctx) {
-    FFmpegMediaMetadataRetriever mmr = new FFmpegMediaMetadataRetriever();
+  public static void getVideoInfo(String source, Promise promise, ReactApplicationContext ctx) {
+//    MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+    MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+    String path= getRealPathFromURI(Uri.parse(source),ctx);
     try {
-      if (VideoEdit.shouldUseURI(path)) {
-        mmr.setDataSource(ctx, Uri.parse(path));
-      } else {
-        mmr.setDataSource(path);
-      }
-
-      int duration = Integer.parseInt(mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION));
-      int width = Integer.parseInt(mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-      int height = Integer.parseInt(mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-      int orientation = Integer.parseInt(mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+//      if (VideoEdit.shouldUseURI(path)) {
+//        mmr.setDataSource(ctx, Uri.parse(path));
+//      } else {
+       mmr.setDataSource(path);
+//      }
+      Log.d("PAAAAAATH", "1");
+      Log.d("PAAAAAATH", "11");
+      int duration = Integer.parseInt(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+      int width = Integer.parseInt(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+      int height = Integer.parseInt(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+      int orientation = Integer.parseInt(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
       // METADATA_KEY_FRAMERATE returns a float or int or might not exist
-      Integer frameRate = VideoEdit.getIntFromString(mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_FRAMERATE));
+      Integer frameRate = VideoEdit.getIntFromString(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE));
       // METADATA_KEY_VARIANT_BITRATE returns a int or might not exist
-      Integer bitrate = VideoEdit.getIntFromString(mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VARIANT_BITRATE));
+      Integer bitrate = VideoEdit.getIntFromString(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE));
       if (orientation == 90 || orientation == 270) {
         width = width + height;
         height = width - height;
@@ -358,10 +356,17 @@ public class Trimmer {
       } else {
         event.putNull(Events.BITRATE);
       }
-
+      Log.d("PAAAAAATH", "done");
+      Log.d("PAAAAAATH", "done1");
+      Log.d("PAAAAAATH", String.valueOf(event));
       promise.resolve(event);
-    } finally {
+
+    } catch (Exception e) {
+      Log.d("PAAAAAATH", "error");
+      e.printStackTrace();
+    }finally {
       mmr.release();
+      Log.d("PAAAAAATH", "no error");
     }
   }
 
@@ -567,19 +572,16 @@ public class Trimmer {
   static void getPreviewImageAtPosition(String source, double sec, String format, final Promise promise, ReactApplicationContext ctx) {
     Bitmap bmp = null;
     int orientation = 0;
-    FFmpegMediaMetadataRetriever metadataRetriever = new FFmpegMediaMetadataRetriever();
+    MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
     try {
-      FFmpegMediaMetadataRetriever.IN_PREFERRED_CONFIG = Bitmap.Config.ARGB_8888;
       metadataRetriever.setDataSource(source);
-
       bmp = metadataRetriever.getFrameAtTime((long) (sec * 1000000));
       if(bmp == null){
         promise.reject("Failed to get preview at requested position.");
         return;
       }
-
       // NOTE: FIX ROTATED BITMAP
-      orientation = Integer.parseInt(metadataRetriever.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+      orientation = Integer.parseInt(metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
     } finally {
       metadataRetriever.release();
     }
@@ -639,8 +641,8 @@ public class Trimmer {
   static void crop(String source, ReadableMap options, final Promise promise, ReactApplicationContext ctx) {
 
     // Crop
-    int cropWidth = (int)( options.getDouble("cropWidth") );
-    int cropHeight = (int)( options.getDouble("cropHeight") );
+//    int cropWidth = (int)( options.getDouble("cropWidth") );
+//    int cropHeight = (int)( options.getDouble("cropHeight") );
     int cropOffsetX = (int)( options.getDouble("cropOffsetX") );
     int cropOffsetY = (int)( options.getDouble("cropOffsetY") );
     int cropWidthSize = (int)( options.getDouble("cropWidthSize") );
@@ -648,8 +650,8 @@ public class Trimmer {
 
     int videoBitrate = (int)( options.getInt("bitrate") );
 
-    cropWidth = cropWidthSize;
-    cropHeight = cropHeightSize;
+    int cropWidth = cropWidthSize;
+    int cropHeight = cropHeightSize;
 
     // TODO: 1) ADD METHOD TO CHECK "IS FFMPEG LOADED".
     // 2) CHECK IT HERE
@@ -686,7 +688,7 @@ public class Trimmer {
 
     cmd.add("-vf");
     if ( width != 0 && height != 0 ) {
-      cmd.add("crop=" + Integer.toString(cropWidth) + ":" + Integer.toString(cropHeight) + ":" + Integer.toString(cropOffsetX) + ":" + Integer.toString(cropOffsetY)+ ","+ "scale=" + Integer.toString(width) + ":" + Integer.toString(height));
+      cmd.add("crop=" + Integer.toString(cropWidth) + ":" + Integer.toString(cropHeight) + ":" + Integer.toString(cropOffsetX) + ":" + Integer.toString(cropOffsetY)+ ","+ "scale=" + Integer.toString(width/(int) 2.25) + ":" + Integer.toString(height/(int) 2.25));
     } else {
       cmd.add("crop=" + Integer.toString(cropWidth) + ":" + Integer.toString(cropHeight) + ":" + Integer.toString(cropOffsetX) + ":" + Integer.toString(cropOffsetY));
     }

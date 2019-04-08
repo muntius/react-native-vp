@@ -26,7 +26,6 @@ configurations.all {
 dependencies {
   compile 'com.facebook.react:react-native:+'
   compile 'com.googlecode.mp4parser:isoparser:1.1.20'
-  compile 'com.github.wseemann:FFmpegMediaMetadataRetriever:1.0.14'
 }
 
 allprojects {
