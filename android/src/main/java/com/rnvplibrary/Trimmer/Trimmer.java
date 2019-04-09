@@ -316,13 +316,7 @@ public class Trimmer {
     MediaMetadataRetriever mmr = new MediaMetadataRetriever();
     String path= getRealPathFromURI(Uri.parse(source),ctx);
     try {
-//      if (VideoEdit.shouldUseURI(path)) {
-//        mmr.setDataSource(ctx, Uri.parse(path));
-//      } else {
        mmr.setDataSource(path);
-//      }
-      Log.d("PAAAAAATH", "1");
-      Log.d("PAAAAAATH", "11");
       int duration = Integer.parseInt(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
       int width = Integer.parseInt(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
       int height = Integer.parseInt(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
@@ -336,13 +330,10 @@ public class Trimmer {
         height = width - height;
         width = width - height;
       }
-
       WritableMap event = Arguments.createMap();
       WritableMap size = Arguments.createMap();
-
       size.putInt(Events.WIDTH, width);
       size.putInt(Events.HEIGHT, height);
-
       event.putMap(Events.SIZE, size);
       event.putInt(Events.DURATION, duration / 1000);
       event.putInt(Events.ORIENTATION, orientation);
@@ -356,17 +347,12 @@ public class Trimmer {
       } else {
         event.putNull(Events.BITRATE);
       }
-      Log.d("PAAAAAATH", "done");
-      Log.d("PAAAAAATH", "done1");
-      Log.d("PAAAAAATH", String.valueOf(event));
       promise.resolve(event);
 
     } catch (Exception e) {
-      Log.d("PAAAAAATH", "error");
       e.printStackTrace();
     }finally {
       mmr.release();
-      Log.d("PAAAAAATH", "no error");
     }
   }
 
@@ -544,7 +530,6 @@ public class Trimmer {
       cmd.add("-an");
     }
     cmd.add(tempFile.getPath());
-
     executeFfmpegCommand(cmd, tempFile.getPath(), ctx, promise, "compress error", cb);
   }
 
@@ -705,7 +690,6 @@ public class Trimmer {
     cmd.add("libx264");
     // NOTE: OUTPUT FILE
     cmd.add(tempFile.getPath());
-    Log.d("Tessssssst", String.valueOf(cmd));
 
     // executeFfmpegCommand(cmd, tempFile.getPath(), ctx, promise, "Crop error", null);
     String pathToProcessingFile = tempFile.getPath();
