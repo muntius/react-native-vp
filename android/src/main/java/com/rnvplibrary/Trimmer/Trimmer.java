@@ -316,7 +316,11 @@ public class Trimmer {
     MediaMetadataRetriever mmr = new MediaMetadataRetriever();
     String path= getRealPathFromURI(Uri.parse(source),ctx);
     try {
-       mmr.setDataSource(path);
+      if (VideoEdit.shouldUseURI(path)) {
+        mmr.setDataSource(ctx, Uri.parse(path));
+      } else {
+        mmr.setDataSource(path);
+      }
       int duration = Integer.parseInt(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
       int width = Integer.parseInt(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
       int height = Integer.parseInt(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
