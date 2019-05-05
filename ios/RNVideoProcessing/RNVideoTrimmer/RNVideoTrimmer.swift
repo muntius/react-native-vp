@@ -6,6 +6,7 @@
     import UIKit
     import Foundation
     import AVFoundation
+    import Photos
     
     enum QUALITY_ENUM: String {
       case QUALITY_LOW = "low"
@@ -30,41 +31,41 @@
       
       @objc func getVideoOrientationFromAsset(asset : AVAsset) -> UIImage.Orientation {
         let videoTrack: AVAssetTrack? = asset.tracks(withMediaType: AVMediaType.video)[0]
-//        let size = videoTrack!.naturalSize
+        //        let size = videoTrack!.naturalSize
         
-//        let txf: CGAffineTransform = videoTrack!.preferredTransform
+        //        let txf: CGAffineTransform = videoTrack!.preferredTransform
         
-//        if (size.width == txf.tx && size.height == txf.ty) {
-//          return UIImageOrientation.left;
-//        } else if (txf.tx == 0 && txf.ty == 0) {
-//          return UIImageOrientation.right;
-//        } else if (txf.tx == 0 && txf.ty == size.width) {
-//          return UIImageOrientation.down;
-//        } else {
-//          return UIImageOrientation.up;
-//        }
+        //        if (size.width == txf.tx && size.height == txf.ty) {
+        //          return UIImageOrientation.left;
+        //        } else if (txf.tx == 0 && txf.ty == 0) {
+        //          return UIImageOrientation.right;
+        //        } else if (txf.tx == 0 && txf.ty == size.width) {
+        //          return UIImageOrientation.down;
+        //        } else {
+        //          return UIImageOrientation.up;
+        //        }
         
         let orientationTransform = videoTrack!.preferredTransform
-
+        
         var videoAssetOrientation_: UIImage.Orientation
         var isVideoAssetPortrait_: Bool
         if (orientationTransform.a == 0.0 && orientationTransform.b == 1.0 && orientationTransform.c == -1.0 && orientationTransform.d == 0)
-           {
-            isVideoAssetPortrait_ = true
-            return UIImage.Orientation.up;
-         
+        {
+          isVideoAssetPortrait_ = true
+          return UIImage.Orientation.up;
+          
         }
         else if(orientationTransform.a == 0.0 && orientationTransform.b == -1.0 && orientationTransform.c == 1.0 && orientationTransform.d == 0) {
           isVideoAssetPortrait_ = true
           return UIImage.Orientation.down;
         }
-        
+          
         else if orientationTransform.a == 0 && orientationTransform.b == 1.0 && orientationTransform.c == -1.0 && orientationTransform.d == 0 {
           videoAssetOrientation_ = .right
           isVideoAssetPortrait_ = true
           return UIImage.Orientation.right;
         }
-       else if orientationTransform.a == 0 && orientationTransform.b == -1.0 && orientationTransform.c == 1.0 && orientationTransform.d == 0 {
+        else if orientationTransform.a == 0 && orientationTransform.b == -1.0 && orientationTransform.c == 1.0 && orientationTransform.d == 0 {
           videoAssetOrientation_ = .left
           isVideoAssetPortrait_ = true
           return UIImage.Orientation.up;
@@ -73,7 +74,7 @@
           videoAssetOrientation_ = .up
           return UIImage.Orientation.right;
         }
-       else if orientationTransform.a == -1.0 && orientationTransform.b == 0 && orientationTransform.c == 0 && orientationTransform.d == -1.0 {
+        else if orientationTransform.a == -1.0 && orientationTransform.b == 0 && orientationTransform.c == 0 && orientationTransform.d == -1.0 {
           isVideoAssetPortrait_ = false
           videoAssetOrientation_ = .left
           return UIImage.Orientation.left;
@@ -83,15 +84,15 @@
           return UIImage.Orientation.up;
         }
         
-//        var naturalSize = CGSize()
-//
-//        if isVideoAssetPortrait_ {
-//          naturalSize = CGSize(width: clipVideoTrack.naturalSize.height, height: clipVideoTrack.naturalSize.width)
-//          print("it is portrait")
-//        } else {
-//          naturalSize = clipVideoTrack.naturalSize
-//          print("it is not")
-//        }
+        //        var naturalSize = CGSize()
+        //
+        //        if isVideoAssetPortrait_ {
+        //          naturalSize = CGSize(width: clipVideoTrack.naturalSize.height, height: clipVideoTrack.naturalSize.width)
+        //          print("it is portrait")
+        //        } else {
+        //          naturalSize = clipVideoTrack.naturalSize
+        //          print("it is not")
+        //        }
         
         
         
@@ -143,7 +144,7 @@
         let cropWidthSize  : CGFloat = CGFloat(cropWidthSizeInt!);
         let cropHeightSize : CGFloat = CGFloat(cropHeightSizeInt!);
         
-//        let quality = ((options.object(forKey: "quality") as? String) != nil) ? options.object(forKey: "quality") as! String : ""
+        //        let quality = ((options.object(forKey: "quality") as? String) != nil) ? options.object(forKey: "quality") as! String : ""
         
         var sourceURL = getSourceURL(source: source)
         let asset = AVAsset(url: sourceURL as URL)
@@ -184,17 +185,17 @@
         videoComposition.renderSize = CGSize(width: cropWidthOrigin, height: cropHeightOrigin)
         let instruction : AVMutableVideoCompositionInstruction = AVMutableVideoCompositionInstruction()
         instruction.timeRange = CMTimeRange(start: CMTime.zero, end: asset.duration)
-   
-
+        
+        
         var scale1: CGFloat = 0
         scale1 = cropWidthOrigin / cropWidthSize
-
+        
         
         var t1 = CGAffineTransform.identity
         var t2 = CGAffineTransform.identity
         let transformer = AVMutableVideoCompositionLayerInstruction(assetTrack: clipVideoTrack)
         switch videoOrientation {
-
+          
         case UIImage.Orientation.up:
           t1 = CGAffineTransform(translationX: (clipVideoTrack.naturalSize.height - cropOffsetX)*scale1, y: (0 - cropOffsetY)*scale1 );
           t2 = t1.rotated(by: CGFloat(Double.pi / 2) );
@@ -215,7 +216,7 @@
           NSLog("no supported orientation has been found in this video");
           break;
         }
-       
+        
         let t3: CGAffineTransform = t2.scaledBy(x: scale1, y: scale1)
         let finalTransform: CGAffineTransform = t3
         transformer.setTransform(finalTransform, at: CMTime.zero)
@@ -227,13 +228,13 @@
           switch exportSession.status {
           case .completed:
             
-          sourceURL = self.getSourceURL(source: outputURL)
-//          guard let track = AVAsset(url: sourceURL).tracks(withMediaType: AVMediaTypeVideo).first else { return  }
-//          let size = track.naturalSize.applying(track.preferredTransform)
-//           print("dimensions new 2")
-//           print(fabs(size.width))
-//           print(fabs(size.height))
-          callback( [NSNull(), sourceURL.absoluteString] )
+            sourceURL = self.getSourceURL(source: outputURL)
+            //          guard let track = AVAsset(url: sourceURL).tracks(withMediaType: AVMediaTypeVideo).first else { return  }
+            //          let size = track.naturalSize.applying(track.preferredTransform)
+            //           print("dimensions new 2")
+            //           print(fabs(size.width))
+            //           print(fabs(size.height))
+            callback( [NSNull(), sourceURL.absoluteString] )
           case .failed:
             callback( ["Failed: \(String(describing: exportSession.error))", NSNull()] )
             
@@ -246,9 +247,6 @@
         
         // do something here when loop finished
       }
-      
-      
-      
       
       func resize(_ source: String, _ options: [String:Float], completion: @escaping (_ result: String)->()) {
         
@@ -320,10 +318,6 @@
           }
         })
       }
-      
-      
-      
-      
       
       @objc func trim(_ source: String, options: NSDictionary, callback: @escaping RCTResponseSenderBlock) {
         
@@ -735,6 +729,77 @@
         
       }
       
+      @objc func isAssetStoredLocally(_ source: String, callback: @escaping RCTResponseSenderBlock) {
+        let assetUrl = URL(string: source)!
+        // retrieve the image for the first result
+        let fetchResult = PHAsset.fetchAssets(withALAssetURLs: [assetUrl], options: nil)
+        if let video = fetchResult.firstObject {
+          var isLocally = false
+          let opt=PHVideoRequestOptions()
+          opt.version = .original
+          opt.deliveryMode = .fastFormat;
+          opt.isNetworkAccessAllowed=false
+          PHImageManager.default().requestAVAsset(forVideo: video, options: opt, resultHandler: { (asset, audioMix, info) in
+            if (asset as? AVURLAsset) != nil {
+              print("asset found")
+              DispatchQueue.main.async {
+                if (info!["PHImageFileSandboxExtensionTokenKey"] != nil) {
+                  isLocally=true
+                }else if((info![PHImageResultIsInCloudKey]) != nil) {
+                  isLocally=false
+                }else{
+                  isLocally=true
+                }
+                callback( [NSNull(), isLocally] )
+              }
+            } else {
+              print("no asset")
+              isLocally = false
+              callback( [NSNull(), isLocally] )
+            }
+          })
+        }
+      }
+      
+      @objc func saveAssetLocally (_ source: String, callback: @escaping RCTResponseSenderBlock) {
+        print("saveAssetLocally")
+        let assetUrl = URL(string: source)!
+        // retrieve the image for the first result
+        let fetchResult = PHAsset.fetchAssets(withALAssetURLs: [assetUrl], options: nil)
+        if let video = fetchResult.firstObject {
+          var downloaded = false
+          let options: PHVideoRequestOptions = PHVideoRequestOptions()
+          options.version = .original
+          options.isNetworkAccessAllowed = true
+          options.deliveryMode = .fastFormat;
+          options.progressHandler = {  (progress, error, stop, info) in
+            print("progress")
+            print(progress)
+            if(Int(progress) == 1){
+              print("downloaded")
+              downloaded = true
+            }
+            if((error) != nil){
+              print("error in progress")
+            }
+          }
+          PHImageManager.default().requestAVAsset(forVideo: video, options: options, resultHandler: { (asset, audioMix, info) in
+            if let urlAsset = asset as? AVURLAsset {
+              print("media here")
+               print(urlAsset)
+              if(downloaded){
+                callback( [NSNull(), downloaded] )
+              }
+              print(urlAsset)
+            } else {
+              callback( [NSNull(), false] )
+              print("error compplete")
+            }
+          })
+        }
+      }
+      
+      
       func randomString() -> String {
         let letters: NSString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         let randomString: NSMutableString = NSMutableString(capacity: 20)
@@ -744,6 +809,7 @@
         }
         return s.appending(randomString as String)
       }
+      
       
       func getSourceURL(source: String) -> URL {
         var sourceURL: URL
@@ -755,6 +821,84 @@
         }
         return sourceURL
       }
+      
+      
+      //      func getAsset(source: String, completion: @escaping ((_ url: URL) -> ())) {
+      //        getSourceURL = URL(string: source)!
+      //        let initialRequestOptions = PHVideoRequestOptions()
+      //        initialRequestOptions.isNetworkAccessAllowed = true
+      //        initialRequestOptions.deliveryMode = .fastFormat
+      //
+      //        // retrieve the image for the first result
+      //        let fetchResult = PHAsset.fetchAssets(withALAssetURLs: [sourceURL], options: nil)
+      //        if let video = fetchResult.firstObject {
+      //          getUrlsFromPHAssets(asset: video, completion: { url in
+      //            sourceURL  = url
+      //            print("sourceURL")
+      //            print(sourceURL)
+      //          }
+      //          )
+      //        }
+      //      }
+      
+      
+//      func fetchAssetsFromPHAssets(asset: PHAsset, completion: @escaping ((_ url: URL) -> ())) {
+//        var assetUrl : URL = URL(fileURLWithPath: "")
+//        let group = DispatchGroup()
+//        group.enter()
+//        getURL(ofPhotoWith: asset) { url in
+//          // I changed this from force unwrapping.
+//          // Seems like it totally possible to get back a nil URL,
+//          // in which case, you don't want to crash
+//          if let url = url {
+//            assetUrl = url
+//          }
+//          group.leave()
+//        }
+//        // This closure will be called once group.leave() is called
+//        // for every asset in the above for loop
+//        group.notify(queue: .main) {
+//          completion(assetUrl )
+//        }
+//      }
+      
+      
+//      func getURL(ofPhotoWith mPhasset: PHAsset, completionHandler : @escaping ((_ responseURL : URL?) -> Void)) {
+//
+//        if mPhasset.mediaType == .image {
+//          let options: PHContentEditingInputRequestOptions = PHContentEditingInputRequestOptions()
+//          options.canHandleAdjustmentData = {(adjustmeta: PHAdjustmentData) -> Bool in
+//            return true
+//          }
+//          mPhasset.requestContentEditingInput(with: options, completionHandler: { (contentEditingInput, info) in
+//            if(contentEditingInput != nil){
+//              print(contentEditingInput!.fullSizeImageURL!.absoluteURL)
+//              completionHandler(contentEditingInput!.fullSizeImageURL!.absoluteURL)
+//            }
+//          })
+//        } else if mPhasset.mediaType == .video {
+//          let options: PHVideoRequestOptions = PHVideoRequestOptions()
+//          options.version = .original
+//          options.isNetworkAccessAllowed = true
+//          options.deliveryMode = .fastFormat;
+//          options.progressHandler = {  (progress, error, stop, info) in
+//            print("progress: \(progress)")
+//
+//          }
+//          PHImageManager.default().requestAVAsset(forVideo: mPhasset, options: options, resultHandler: { (asset, audioMix, info) in
+//            if let urlAsset = asset as? AVURLAsset {
+//              let localVideoUrl = urlAsset.url
+//              print("download compplete")
+//              print("download compplete")
+//              completionHandler(localVideoUrl)
+//            } else {
+//              completionHandler(nil)
+//            }
+//          })
+//        }
+//
+//      }
+      
       
       func getQualityForAsset(quality: String, asset: AVAsset) -> String {
         var useQuality: String

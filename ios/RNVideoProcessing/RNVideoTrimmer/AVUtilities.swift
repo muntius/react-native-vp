@@ -1,8 +1,3 @@
-/*
- * Credit to whydna and yayoc
- * https://github.com/whydna/Reverse-AVAsset-Efficient
- */
-
 import UIKit
 import AVFoundation
 
@@ -19,7 +14,7 @@ class AVUtilities {
       return
     }
     
-    guard let videoTrack = original.tracks(withMediaType: AVMediaType.video).last else {
+    guard let videoTrack = original.tracks(withMediaType: .video).last else {
       print("could not retrieve the video track.")
       return
     }
@@ -41,7 +36,7 @@ class AVUtilities {
     
     let writer: AVAssetWriter
     do {
-      writer = try AVAssetWriter(outputURL: outputURL, fileType: AVFileType.mov)
+      writer = try AVAssetWriter(outputURL: outputURL, fileType: .mov)
     } catch let error {
       fatalError(error.localizedDescription)
     }
@@ -54,7 +49,7 @@ class AVUtilities {
       AVVideoCompressionPropertiesKey: videoCompositionProps
       ] as [String : Any]
     
-    let writerInput = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: writerOutputSettings)
+    let writerInput = AVAssetWriterInput(mediaType: .video, outputSettings: writerOutputSettings)
     writerInput.expectsMediaDataInRealTime = false
     writerInput.transform = videoTrack.preferredTransform
     
@@ -79,5 +74,3 @@ class AVUtilities {
     }
   }
 }
-
-
