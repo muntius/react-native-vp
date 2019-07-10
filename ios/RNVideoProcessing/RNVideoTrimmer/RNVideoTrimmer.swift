@@ -716,7 +716,6 @@
                 result.append(
                   fullPath);
               }
-              
             } else {
               callback( ["Failed format. Expected one of 'base64' or 'JPEG'", NSNull()] )
             }
@@ -731,17 +730,16 @@
       
       @objc func isAssetStoredLocally(_ source: String, callback: @escaping RCTResponseSenderBlock) {
         let assetUrl = URL(string: source)!
+        var isLocally = false
         // retrieve the image for the first result
         let fetchResult = PHAsset.fetchAssets(withALAssetURLs: [assetUrl], options: nil)
         if let video = fetchResult.firstObject {
-          var isLocally = false
           let opt=PHVideoRequestOptions()
           opt.version = .original
           opt.deliveryMode = .fastFormat;
           opt.isNetworkAccessAllowed=false
           PHImageManager.default().requestAVAsset(forVideo: video, options: opt, resultHandler: { (asset, audioMix, info) in
             if (asset as? AVURLAsset) != nil {
-              print("asset found")
               DispatchQueue.main.async {
                 if (info!["PHImageFileSandboxExtensionTokenKey"] != nil) {
                   isLocally=true
@@ -753,11 +751,13 @@
                 callback( [NSNull(), isLocally] )
               }
             } else {
-              print("no asset")
               isLocally = false
               callback( [NSNull(), isLocally] )
             }
           })
+        } else {
+          isLocally = true
+          callback( [NSNull(), isLocally] )
         }
       }
       
@@ -773,10 +773,7 @@
           options.isNetworkAccessAllowed = true
           options.deliveryMode = .fastFormat;
           options.progressHandler = {  (progress, error, stop, info) in
-            print("progress")
-            print(progress)
             if(Int(progress) == 1){
-              print("downloaded")
               downloaded = true
             }
             if((error) != nil){
@@ -785,8 +782,6 @@
           }
           PHImageManager.default().requestAVAsset(forVideo: video, options: options, resultHandler: { (asset, audioMix, info) in
             if let urlAsset = asset as? AVURLAsset {
-              print("media here")
-               print(urlAsset)
               if(downloaded){
                 callback( [NSNull(), downloaded] )
               }
@@ -796,6 +791,8 @@
               print("error compplete")
             }
           })
+        }  else {
+          callback( [NSNull(), false] )
         }
       }
       
@@ -821,84 +818,6 @@
         }
         return sourceURL
       }
-      
-      
-      //      func getAsset(source: String, completion: @escaping ((_ url: URL) -> ())) {
-      //        getSourceURL = URL(string: source)!
-      //        let initialRequestOptions = PHVideoRequestOptions()
-      //        initialRequestOptions.isNetworkAccessAllowed = true
-      //        initialRequestOptions.deliveryMode = .fastFormat
-      //
-      //        // retrieve the image for the first result
-      //        let fetchResult = PHAsset.fetchAssets(withALAssetURLs: [sourceURL], options: nil)
-      //        if let video = fetchResult.firstObject {
-      //          getUrlsFromPHAssets(asset: video, completion: { url in
-      //            sourceURL  = url
-      //            print("sourceURL")
-      //            print(sourceURL)
-      //          }
-      //          )
-      //        }
-      //      }
-      
-      
-//      func fetchAssetsFromPHAssets(asset: PHAsset, completion: @escaping ((_ url: URL) -> ())) {
-//        var assetUrl : URL = URL(fileURLWithPath: "")
-//        let group = DispatchGroup()
-//        group.enter()
-//        getURL(ofPhotoWith: asset) { url in
-//          // I changed this from force unwrapping.
-//          // Seems like it totally possible to get back a nil URL,
-//          // in which case, you don't want to crash
-//          if let url = url {
-//            assetUrl = url
-//          }
-//          group.leave()
-//        }
-//        // This closure will be called once group.leave() is called
-//        // for every asset in the above for loop
-//        group.notify(queue: .main) {
-//          completion(assetUrl )
-//        }
-//      }
-      
-      
-//      func getURL(ofPhotoWith mPhasset: PHAsset, completionHandler : @escaping ((_ responseURL : URL?) -> Void)) {
-//
-//        if mPhasset.mediaType == .image {
-//          let options: PHContentEditingInputRequestOptions = PHContentEditingInputRequestOptions()
-//          options.canHandleAdjustmentData = {(adjustmeta: PHAdjustmentData) -> Bool in
-//            return true
-//          }
-//          mPhasset.requestContentEditingInput(with: options, completionHandler: { (contentEditingInput, info) in
-//            if(contentEditingInput != nil){
-//              print(contentEditingInput!.fullSizeImageURL!.absoluteURL)
-//              completionHandler(contentEditingInput!.fullSizeImageURL!.absoluteURL)
-//            }
-//          })
-//        } else if mPhasset.mediaType == .video {
-//          let options: PHVideoRequestOptions = PHVideoRequestOptions()
-//          options.version = .original
-//          options.isNetworkAccessAllowed = true
-//          options.deliveryMode = .fastFormat;
-//          options.progressHandler = {  (progress, error, stop, info) in
-//            print("progress: \(progress)")
-//
-//          }
-//          PHImageManager.default().requestAVAsset(forVideo: mPhasset, options: options, resultHandler: { (asset, audioMix, info) in
-//            if let urlAsset = asset as? AVURLAsset {
-//              let localVideoUrl = urlAsset.url
-//              print("download compplete")
-//              print("download compplete")
-//              completionHandler(localVideoUrl)
-//            } else {
-//              completionHandler(nil)
-//            }
-//          })
-//        }
-//
-//      }
-      
       
       func getQualityForAsset(quality: String, asset: AVAsset) -> String {
         var useQuality: String
