@@ -258,43 +258,19 @@ public class Trimmer {
 
       WritableArray images = Arguments.createArray();
       int duration = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-      int width = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-      int height = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-      int orientation = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
-
-      float aspectRatio = (float)width / (float)height;
-
-      int resizeWidth = 50;
-      int resizeHeight = Math.round(resizeWidth / aspectRatio);
-
-      float scaleWidth = ((float) resizeWidth) / width;
-      float scaleHeight = ((float) resizeHeight) / height;
-
-      Log.d(TrimmerManager.REACT_PACKAGE, "getPreviewImages: \n\tduration: " + duration +
-              "\n\twidth: " + width +
-              "\n\theight: " + height +
-              "\n\torientation: " + orientation +
-              "\n\taspectRatio: " + aspectRatio +
-              "\n\tresizeWidth: " + resizeWidth +
-              "\n\tresizeHeight: " + resizeHeight
-      );
-
-      Matrix mx = new Matrix();
-
-      mx.postScale(scaleWidth, scaleHeight);
-      mx.postRotate(orientation - 360);
+      int resizeWidth = 20;
+      int resizeHeight = 20;
 
       for (int i = 0; i < duration; i += duration / 10) {
         Bitmap frame = retriever.getFrameAtTime(i * 1000);
-
         if (frame == null) {
           continue;
         }
         Bitmap currBmp = Bitmap.createScaledBitmap(frame, resizeWidth, resizeHeight, false);
 
-        Bitmap normalizedBmp = Bitmap.createBitmap(currBmp, 0, 0, resizeWidth, resizeHeight, mx, true);
+        Bitmap normalizedBmp = Bitmap.createBitmap(currBmp, 0, 0, resizeWidth, resizeHeight);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        normalizedBmp.compress(Bitmap.CompressFormat.PNG, 90, byteArrayOutputStream);
+        normalizedBmp.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream.toByteArray();
         String encoded = "data:image/png;base64," + Base64.encodeToString(byteArray, Base64.DEFAULT);
         images.pushString(encoded);
@@ -305,6 +281,8 @@ public class Trimmer {
       event.putArray("images", images);
 
       promise.resolve(event);
+    } catch (Exception e) {
+      e.printStackTrace();
     } finally {
       retriever.release();
     }
