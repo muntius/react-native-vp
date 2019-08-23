@@ -66,10 +66,6 @@ public class VideoEdit {
     genVideoUsingMp4Parser(src, file, startMs, endMs, callback);
   }
 
-  public static void startCompress(@NonNull String source, @NonNull final OnCompressVideoListener callback, ThemedReactContext ctx, ReadableMap options) throws IOException {
-    Trimmer.compress(source, options, null, callback, ctx, null);
-  }
-
   private static void genVideoUsingMp4Parser(@NonNull File src, @NonNull File dst, long startMs, long endMs, @NonNull OnTrimVideoListener callback) throws IOException {
     if (!src.exists()) {
       String error = "Targeted video is not found";

@@ -20,7 +20,6 @@ public class TrimmerManager extends ReactContextBaseJavaModule {
   public TrimmerManager(ReactApplicationContext reactContext) {
     super(reactContext);
     this.reactContext = reactContext;
-    loadFfmpeg();
   }
 
   @Override
@@ -41,18 +40,6 @@ public class TrimmerManager extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void trim(ReadableMap options, Promise promise) {
-    Log.d(REACT_PACKAGE, options.toString());
-    Trimmer.trim(options, promise, reactContext);
-  }
-
-  @ReactMethod
-  public void compress(String path, ReadableMap options, Promise promise) {
-    Log.d(REACT_PACKAGE, "compress video: " + options.toString());
-    Trimmer.compress(path, options, promise, null, null, reactContext);
-  }
-
-  @ReactMethod
   public void getPreviewImageAtPosition(ReadableMap options, Promise promise) {
     String source = options.getString("source");
     double sec = options.hasKey("second") ? options.getDouble("second") : 0;
@@ -63,28 +50,5 @@ public class TrimmerManager extends ReactContextBaseJavaModule {
   @ReactMethod
   public void crop(String path, ReadableMap options, Promise promise) {
     Trimmer.crop(path, options, promise, reactContext);
-  }
-
-  @ReactMethod
-  public void boomerang(String path, Promise promise) {
-    Log.d(REACT_PACKAGE, "boomerang video: " + path);
-    Trimmer.boomerang(path, promise, reactContext);
-  }
-
-  @ReactMethod
-  public void reverse(String path, Promise promise) {
-    Log.d(REACT_PACKAGE, "reverse video: " + path);
-    Trimmer.reverse(path, promise, reactContext);
-  }
-
-  @ReactMethod
-  public void merge(ReadableArray videoFiles, String cmd, Promise promise) {
-    Log.d(REACT_PACKAGE, "Sending command: " + cmd);
-    Trimmer.merge(videoFiles, cmd, promise, reactContext);
-  }
-
-  @ReactMethod
-  private void loadFfmpeg() {
-    Trimmer.loadFfmpeg(reactContext);
   }
 }
