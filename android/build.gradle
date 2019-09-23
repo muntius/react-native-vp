@@ -26,7 +26,7 @@ configurations.all {
 
 dependencies {
   implementation 'com.facebook.react:react-native:+'
-  implementation 'com.arthenica:mobile-ffmpeg-min-gpl:4.2.2.LTS'
+  implementation 'com.arthenica:mobile-ffmpeg-min:4.2.2.LTS'
   implementation 'com.googlecode.mp4parser:isoparser:1.1.20'
 }
 
