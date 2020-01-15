@@ -318,7 +318,7 @@ public class Trimmer {
                 cropString = cropString + "," + "scale=" + Integer.toString(width / (int) 2.25) + ":" + Integer.toString(height / (int) 2.25);
             }
             String pathToProcessingFile = tempFile.getPath();
-            String oneFinal = "-y;-i;" + filePath + ";-c:a;copy;-ss;" + startTime + ";-to;" + endTime + ";-vf;" + cropString + ";-c:a;aac;-c:v;mpeg4;-r;30;-strict;-2;" + pathToProcessingFile;
+            String oneFinal = "-y;-i;" + filePath + ";-ss;" + startTime + ";-to;" + endTime + ";-vf;" + cropString + ";-c:a;aac;-c:v;mpeg4;-r;30;-vb;20M;" + pathToProcessingFile;
             String errorMessageTitle = "Crop error";
             OnCompressVideoListener cb = null;
             FfmpegCmdAsyncTaskParams ffmpegCmdAsyncTaskParams = new FfmpegCmdAsyncTaskParams(oneFinal, pathToProcessingFile, promise);
