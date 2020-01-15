@@ -31,8 +31,8 @@ import java.io.FileOutputStream;
 
 import android.os.AsyncTask;
 
-import static com.arthenica.mobileffmpeg.FFmpeg.RETURN_CODE_CANCEL;
-import static com.arthenica.mobileffmpeg.FFmpeg.RETURN_CODE_SUCCESS;
+import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_CANCEL;
+import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
 
 
 public class Trimmer {
@@ -61,9 +61,7 @@ public class Trimmer {
             final Promise promise = params[0].promise;
 
             try {
-                FFmpeg.execute(cmd, ";");
-                int rc = FFmpeg.getLastReturnCode();
-                String output = FFmpeg.getLastCommandOutput();
+                int rc = FFmpeg.execute(cmd);
                 if (rc == RETURN_CODE_SUCCESS) {
                     String filePath = "file://" + pathToProcessingFile;
                     WritableMap event = Arguments.createMap();
@@ -318,7 +316,7 @@ public class Trimmer {
                 cropString = cropString + "," + "scale=" + Integer.toString(width / (int) 2.25) + ":" + Integer.toString(height / (int) 2.25);
             }
             String pathToProcessingFile = tempFile.getPath();
-            String oneFinal = "-y;-i;" + filePath + ";-ss;" + startTime + ";-to;" + endTime + ";-vf;" + cropString + ";-c:a;aac;-c:v;mpeg4;-r;30;-vb;20M;" + pathToProcessingFile;
+            String oneFinal = "-y -i '" + filePath + "' -ss " + startTime + " -to " + endTime + " -vf " + cropString + " -c:a aac -c:v mpeg4 -r 30 -vb 20M " + pathToProcessingFile;
             String errorMessageTitle = "Crop error";
             OnCompressVideoListener cb = null;
             FfmpegCmdAsyncTaskParams ffmpegCmdAsyncTaskParams = new FfmpegCmdAsyncTaskParams(oneFinal, pathToProcessingFile, promise);
