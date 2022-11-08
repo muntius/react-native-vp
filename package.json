@@ -3,7 +3,6 @@
   "version": "1.0.11",
   "description": "Native Video processing/editing for React-Native",
   "main": "index.js",
-
   "repository": {
     "type": "git",
     "url": "https://github.com/BachirKhiati/react-native-vp.git"

@@ -1,6 +1,6 @@
 package com.rnvplibrary.Trimmer;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import com.facebook.react.bridge.ReadableArray;

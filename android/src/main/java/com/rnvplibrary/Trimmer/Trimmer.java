@@ -120,7 +120,11 @@ public class Trimmer {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            retriever.release();
+            try {
+                retriever.release();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -170,7 +174,11 @@ public class Trimmer {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            mmr.release();
+            try {
+                mmr.release();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -207,7 +215,11 @@ public class Trimmer {
             videoMetadata.putInt("bitrate", bitrate);
             return videoMetadata;
         } finally {
-            retriever.release();
+            try {
+                retriever.release();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -245,7 +257,11 @@ public class Trimmer {
             // NOTE: FIX ROTATED BITMAP
             orientation = Integer.parseInt(metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
         } finally {
-            metadataRetriever.release();
+            try {
+                metadataRetriever.release();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         if (orientation != 0) {
