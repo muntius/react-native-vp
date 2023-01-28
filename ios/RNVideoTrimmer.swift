@@ -634,28 +634,44 @@
           }
         })
       }
-      
-      @objc func getAssetInfo(_ source: String, callback: RCTResponseSenderBlock) {
+        
+    @objc func getAssetInfo(_ source: String, callback: @escaping RCTResponseSenderBlock) {
         let sourceURL = getSourceURL(source: source)
         let asset = AVAsset(url: sourceURL)
-        var assetInfo: [String: Any] = [
-          "duration" : asset.duration.seconds
-        ]
-        if let track = asset.tracks(withMediaType: AVMediaType.video).first {
-          let naturalSize = track.naturalSize
-          let t = track.preferredTransform
-          let isPortrait = t.a == 0 && abs(t.b) == 1 && t.d == 0
-          let size = [
-            "width": isPortrait ? naturalSize.height : naturalSize.width,
-            "height": isPortrait ? naturalSize.width : naturalSize.height
-          ]
-          assetInfo["size"] = size
-          assetInfo["frameRate"] = Int(round(track.nominalFrameRate))
-          assetInfo["bitrate"] = Int(round(track.estimatedDataRate))
+        var assetInfo: [String: Any] = [:]
+        asset.loadValuesAsynchronously(forKeys: ["duration", "tracks"]) {
+            DispatchQueue.main.async {
+                var error: NSError?
+                let status = asset.statusOfValue(forKey: "duration", error: &error)
+                switch status {
+                case .loaded:
+                    assetInfo["duration"] = asset.duration.seconds
+                    if let track = asset.tracks(withMediaType: AVMediaType.video).first {
+                        let naturalSize = track.naturalSize
+                        let t = track.preferredTransform
+                        let isPortrait = t.a == 0 && abs(t.b) == 1 && t.d == 0
+                        let size = [
+                            "width": isPortrait ? naturalSize.height : naturalSize.width,
+                            "height": isPortrait ? naturalSize.width : naturalSize.height
+                        ]
+                        assetInfo["size"] = size
+                        assetInfo["frameRate"] = Int(round(track.nominalFrameRate))
+                        assetInfo["bitrate"] = Int(round(track.estimatedDataRate))
+                    }
+                    callback( [NSNull(), assetInfo] )
+                case .failed:
+                    print("Loading failed with error: \(String(describing: error))")
+                    callback([error])
+                case .cancelled:
+                    print("Loading cancelled")
+                    callback([NSNull()])
+                default:
+                    break
+                }
+            }
         }
-        callback( [NSNull(), assetInfo] )
-      }
-      
+    }
+
       @objc func getPreviewImageAtPosition(_ source: String, atTime: Float = 0, maximumSize: NSDictionary, format: String = "base64", callback: @escaping RCTResponseSenderBlock) {
         let sourceURL = getSourceURL(source: source)
         let asset = AVAsset(url: sourceURL)
