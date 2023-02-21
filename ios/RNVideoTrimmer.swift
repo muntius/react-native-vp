@@ -168,16 +168,16 @@
         let timeRange = CMTimeRange(start: startTime, end: endTime)
         
         guard
-          let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetMediumQuality)
+          let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetHighestQuality)
           else {
             callback(["Error creating AVAssetExportSession", NSNull()])
             return
         }
-        
+
         exportSession.outputURL = NSURL.fileURL(withPath: outputURL)
         exportSession.outputFileType = AVFileType.mp4
-        exportSession.shouldOptimizeForNetworkUse = true
-        
+        exportSession.shouldOptimizeForNetworkUse = false
+
         let videoComposition = AVMutableVideoComposition(propertiesOf: asset)
         videoComposition.frameDuration = CMTimeMake(value: 1, timescale: 30)
         cropHeight = cropHeightSize
